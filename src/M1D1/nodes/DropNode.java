@@ -1,4 +1,4 @@
-package PowerMine.nodes;
+package M1D1.nodes;
 
 import org.dreambot.api.script.TaskNode;
 import org.dreambot.api.methods.container.impl.Inventory;
@@ -12,12 +12,12 @@ public class DropNode extends TaskNode {
 
     @Override
     public boolean accept() {
-        return Inventory.isFull();
+        return Inventory.contains(440);
     }
 
     @Override
     public int execute() {
-        Inventory.dropAllExcept(1265,1267,1271,1275,21341);
+        Inventory.dropAll(440);
         return 0;
     }
 }
