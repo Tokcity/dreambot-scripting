@@ -1,6 +1,8 @@
 package RuneMiner.nodes;
 
+import RuneMiner.Helper;
 import org.dreambot.api.methods.interactive.GameObjects;
+import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.world.World;
 import org.dreambot.api.methods.world.Worlds;
 import org.dreambot.api.methods.worldhopper.WorldHopper;
@@ -14,6 +16,14 @@ public class WorldNode extends TaskNode {
 
     HashMap<Integer, HashMap<String, Long>> worlds = new HashMap<Integer, HashMap<String, Long>>();
 
+    private Helper util = new Helper();
+
+    Area mineArea;
+    int[] unminedRockIds;
+    private double oreRespawnMinutes;
+    private double minOreMineAge;
+    private double maxOreMineAge;
+
     @Override
     public int priority() {
         return 1;
@@ -21,7 +31,7 @@ public class WorldNode extends TaskNode {
 
     @Override
     public boolean accept() {
-        return isOre();
+        return !util.oreNearby(mineArea, unminedRockIds, worlds,  minOreMineAge, maxOreMineAge);
     }
 
     @Override
@@ -48,9 +58,22 @@ public class WorldNode extends TaskNode {
                     log("tile age: " + age);
 
                     // Check age to see if we should swap
-                    if(age >= 345000) {
-                        log("found world with refreshing rocks..");
+                    if(age >= minOreMineAge && age <= maxOreMineAge) {
+                        log("found world " + worldNum + " tile " + tileString + " with refreshing rocks in " + age / 1000 + "sec");
                         log("refresh world: " + worldNum);
+                        finalWorldNum = worldNum;
+                    } else if(age >= maxOreMineAge) {
+                        log("found expired world " + worldNum + " tile " + tileString + " with rocks refreshed about " + age / 1000 + "sec ago..");
+                        // Too old remove timestamp for tileString
+                        worldMap.remove(tileString);
+                        log("removed " + tileString + " from worldMap " + worldNum);
+                        // Check if any tiles left, if not remove
+                        if(worldMap.isEmpty()) {
+                            log("worldMap " + worldNum + " is now empty, removing from worlds");
+                            // Remove the worldMap HashMap from our worlds HashMap
+                            worlds.remove(worldNum);
+                            log("removed " + worldNum + " from worlds...");
+                        }
                     }
                 }
             }
@@ -84,4 +107,16 @@ public class WorldNode extends TaskNode {
     public HashMap<Integer, HashMap<String, Long>> getWorld() {
         return worlds;
     }
+
+    public void setOreRespawnMinutes(double o) {
+          oreRespawnMinutes = o;
+    }
+    public void setMinOreMineAge(double mi) {
+         minOreMineAge = mi;
+    }
+    public void setMaxOreMineAge(double ma) {
+         maxOreMineAge = ma;
+    }
+    public void setMineArea(Area ma) { mineArea = ma; }
+    public void setUnminedRockIds(int[] ids) { unminedRockIds = ids; }
 }

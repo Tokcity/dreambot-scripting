@@ -21,8 +21,19 @@ public class MainClass extends TaskScript {
         MineNode mineNode = new MineNode();
         BankNode bankNode = new BankNode();
 
-        // Get/set this party
+        // Set World
         mineNode.setWorldMap(worldNode.getWorld());
+
+        // Set Mining Values
+        worldNode.setOreRespawnMinutes(mineNode.getOreRespawnMinutes());
+        worldNode.setMinOreMineAge(mineNode.getMinOreMineAge());
+        worldNode.setMaxOreMineAge(mineNode.getMaxOreMineAge());
+        worldNode.setMineArea(mineNode.getMineArea());
+        worldNode.setUnminedRockIds(mineNode.getUnminedRockIds());
+
+        // Set Bank Values
+        bankNode.setInvOreId(mineNode.getInvOreId());
+        bankNode.setInvPickaxeId(mineNode.getInvPickaxeId());
 
         addNodes(worldNode, mineNode, bankNode);
 

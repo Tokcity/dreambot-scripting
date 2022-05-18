@@ -109,26 +109,30 @@ public class Helper  {
         Tile mineAreaTile = getValidTile(mineArea);
 
         if(mineAreaTile == null) {
-            MethodProvider.log("unable to reach ore, cannot mine ore...");
+            // MethodProvider.log("unable to reach ore, cannot mine ore...");
             return false;
         }
         // We can reach the ore, so go to it
         if(!mineArea.contains(Client.getLocalPlayer())) {
+            // MethodProvider.log("walking to ore...");
             // Travel to ore to check if we have any to mine
             walkToTile(mineAreaTile);
         }
 
         // Check if we are in the area
         if(mineArea.contains(Client.getLocalPlayer())) {
+            // MethodProvider.log("in mine area...");
             // See if we have any ore nearby
             GameObject unminedOre = GameObjects.closest(object -> Arrays.stream(unminedRockIds).anyMatch(i -> i == object.getID()) && mineArea.contains(object));
             if(unminedOre != null) {
+                // MethodProvider.log("ore nearby...");
                 return true;
             }
             // We have no unmined ore, check the worlds
             int currentWorld = Client.getCurrentWorld();
             HashMap<String, Long> worldMap = worlds.get(Client.getCurrentWorld());
             if(worldMap != null) {
+                // MethodProvider.log("world map not null...");
                 // We have tiles for this world
                 // Get tiles
                 // List all tiles we have for this world and their times
