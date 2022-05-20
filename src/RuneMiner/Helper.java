@@ -103,6 +103,75 @@ public class Helper  {
             MethodProvider.sleep(Calculations.random(450, 950));
         }
     }
+
+    public boolean shouldHop(Area mineArea, int[] unminedRockIds, HashMap<Integer, HashMap<String, Long>> worlds, double minOreMineAge, double maxOreMineAge) {
+        // First we must be near the ore, check if we can get there
+        // First get a valid standable tile
+        Tile mineAreaTile = getValidTile(mineArea);
+
+        if(mineAreaTile == null) {
+            // MethodProvider.log("unable to reach ore, cannot mine ore...");
+            return false;
+        }
+        // We can reach the ore, so go to it
+        if(!mineArea.contains(Client.getLocalPlayer())) {
+            // MethodProvider.log("walking to ore...");
+            // Travel to ore to check if we have any to mine
+            walkToTile(mineAreaTile);
+        }
+
+        // Check if we are in the area
+        if(mineArea.contains(Client.getLocalPlayer())) {
+            // MethodProvider.log("in mine area...");
+            // See if we have any ore nearby
+            GameObject unminedOre = GameObjects.closest(object -> Arrays.stream(unminedRockIds).anyMatch(i -> i == object.getID()) && mineArea.contains(object));
+            if(unminedOre != null) {
+                // MethodProvider.log("ore nearby...");
+                return false;
+            }
+            // We have no unmined ore, check the worlds
+            // Handle true/false for worldNode accept
+            // Stay = false
+            // Tp = true
+            int currentWorld = Client.getCurrentWorld();
+            HashMap<String, Long> worldMap = worlds.get(currentWorld);
+            if(worldMap != null) {
+                // MethodProvider.log("world map not null...");
+                // We have tiles for this world
+                // Get tiles
+                // List all tiles we have for this world and their times
+                for (String tileString : worldMap.keySet()) {
+                    Long ts = worldMap.get(tileString);
+                    long currentTs = new Date().getTime();
+                    long age = currentTs - ts;
+
+                    // Check age to see if we should stay or skip
+                    if(age >= minOreMineAge && age <= maxOreMineAge) {
+                        MethodProvider.log("in world " + currentWorld + " with tile " + tileString + " with refreshing rocks in " + age / 1000 + "sec");
+                        // Stay
+                        return false;
+                    } else if(age >= maxOreMineAge) {
+                        MethodProvider.log("found expired world " + currentWorld + " tile " + tileString + " with rocks refreshed about " + age / 1000 + "sec ago..");
+                        // Too old remove timestamp for tileString
+                        worldMap.remove(tileString);
+                        MethodProvider.log("removed " + tileString + " from worldMap " + currentWorld);
+                        // Check if any tiles left, if not remove
+                        if(worldMap.isEmpty()) {
+                            MethodProvider.log("worldMap " + currentWorld + " is now empty");
+                        }
+                    } else if(unminedOre == null) {
+                        MethodProvider.log("No ore found on world and ore isn't refreshing soon, hopping...");
+                        return true;
+                    }
+                }
+            } else {
+                MethodProvider.log("No world map and no ore found on world " + currentWorld + " hopping...");
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean oreNearby(Area mineArea, int[] unminedRockIds, HashMap<Integer, HashMap<String, Long>> worlds, double minOreMineAge, double maxOreMineAge) {
         // First we must be near the ore, check if we can get there
         // First get a valid standable tile
@@ -129,8 +198,11 @@ public class Helper  {
                 return true;
             }
             // We have no unmined ore, check the worlds
+            // Handle true/false for worldNode accept
+            // Stay = false
+            // Tp = true
             int currentWorld = Client.getCurrentWorld();
-            HashMap<String, Long> worldMap = worlds.get(Client.getCurrentWorld());
+            HashMap<String, Long> worldMap = worlds.get(currentWorld);
             if(worldMap != null) {
                 // MethodProvider.log("world map not null...");
                 // We have tiles for this world
@@ -144,8 +216,8 @@ public class Helper  {
                     // Check age to see if we should stay or skip
                     if(age >= minOreMineAge && age <= maxOreMineAge) {
                         MethodProvider.log("in world " + currentWorld + " with tile " + tileString + " with refreshing rocks in " + age / 1000 + "sec");
-                        // Stay
-                        return true;
+                        // Don't mine yet
+                        return false;
                     } else if(age >= maxOreMineAge) {
                         MethodProvider.log("found expired world " + currentWorld + " tile " + tileString + " with rocks refreshed about " + age / 1000 + "sec ago..");
                         // Too old remove timestamp for tileString
@@ -153,20 +225,21 @@ public class Helper  {
                         MethodProvider.log("removed " + tileString + " from worldMap " + currentWorld);
                         // Check if any tiles left, if not remove
                         if(worldMap.isEmpty()) {
-                            MethodProvider.log("worldMap " + currentWorld + " is now empty, removing from worlds");
-                            // Remove the worldMap HashMap from our worlds HashMap
-                            worlds.remove(currentWorld);
-                            MethodProvider.log("removed " + currentWorld + " from worlds...");
+                            MethodProvider.log("worldMap " + currentWorld + " is now empty");
                         }
+                    } else if(unminedOre == null) {
+                        MethodProvider.log("No ore found on world and ore isn't refreshing soon, hopping...");
+                        return false;
                     }
                 }
             } else {
-                MethodProvider.log("No world map and no ore found on world " + currentWorld + " skipping...");
+                MethodProvider.log("No world map and no ore found on world " + currentWorld + " hopping...");
                 return false;
             }
         }
         return false;
     }
+
     public Tile getValidTile(Area area) {
         // Check if we are in area standing which should be valid tile?
         if(area.contains(Client.getLocalPlayer())) {

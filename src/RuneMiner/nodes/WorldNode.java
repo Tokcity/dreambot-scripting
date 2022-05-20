@@ -31,7 +31,7 @@ public class WorldNode extends TaskNode {
 
     @Override
     public boolean accept() {
-        return !util.oreNearby(mineArea, unminedRockIds, worlds,  minOreMineAge, maxOreMineAge);
+        return util.shouldHop(mineArea, unminedRockIds, worlds,  minOreMineAge, maxOreMineAge);
     }
 
     @Override

@@ -41,7 +41,7 @@ public class MineNode extends TaskNode{
 
     double oreRespawnMinutes = 2.5;
     double minOreMineAge = (60 * 1000 * oreRespawnMinutes);
-    double maxOreMineAge = (60 * 1000 * (oreRespawnMinutes + 1));
+    double maxOreMineAge = (60 * 1000 * (oreRespawnMinutes + 0.25));
 
     @Override
     public int priority() {
@@ -65,7 +65,7 @@ public class MineNode extends TaskNode{
                 int oresInInv = Inventory.count(invOreId);
                 ore.interact("Mine");
                     // this is where we should log world+time to hashmap
-                    sleepUntil(() -> Inventory.count(invOreId) > oresInInv, 3000);
+                    sleepUntil(() -> Inventory.count(invOreId) > oresInInv || !ore.exists(), 60000);
 
                     log("Mining done, logging time..");
                     long ts = new Date().getTime();
@@ -89,7 +89,7 @@ public class MineNode extends TaskNode{
                             long age = ts - tileTimestamp;
                             // We have a previous timestamp for this tile, update it
                             worldMap.put(tileString, ts);
-                            log("updated existing tileString: " + tileString + " with timestamp: " + ts + " for worldMap " + currentWorld + " [visited world " + (age / 1000) + "ms ago]");
+                            log("updated existing tileString: " + tileString + " with timestamp: " + ts + " for worldMap " + currentWorld + " [visited world " + (age / 1000) + "s ago]");
                         } else {
                             log("tileTimestamp == null");
                             // No previous time stamp for this tile, add it
