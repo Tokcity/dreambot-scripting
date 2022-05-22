@@ -22,11 +22,10 @@ public class MineNode extends TaskNode {
             GameObject rock = GameObjects.closest(11364,11365);
             if (rock !=null) {
                 if (rock.distance() == 1)
-                    rock.interact("Mine") ;{
-                        sleepUntil(() -> isMining(), 2500);
-                    }
-                }
+                    rock.interact("Mine") ;
+                    sleepUntil(() -> !rock.exists(), 10000);
             }
+        }
         return 0;
     }
 

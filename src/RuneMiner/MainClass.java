@@ -7,11 +7,6 @@ import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.impl.TaskScript;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 @ScriptManifest(category = Category.MINING, name = "RuneMiner", author = "Tokcity", version = 0.2)
 public class MainClass extends TaskScript {
 

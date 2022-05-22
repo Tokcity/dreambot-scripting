@@ -19,12 +19,14 @@ public class MineNode extends TaskNode {
     @Override
     public int execute() {
         if (!isMining()) {
+            log("We aren't currently mining");
             GameObject rock = GameObjects.closest(11364,11365);
             if (rock !=null) {
+                log("Rock isn't NULL");
                 if (rock.distance() == 1)
-                    rock.interact("Mine") ;{
-                    sleepUntil(() -> !isMining(), 500);
-                }
+                    log("Rock distance = 1");
+                    rock.interact("Mine") ;
+                    sleepUntil(() -> !rock.exists(), 10000);
             }
         }
         return 0;

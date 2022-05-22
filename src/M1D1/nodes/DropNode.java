@@ -17,7 +17,12 @@ public class DropNode extends TaskNode {
 
     @Override
     public int execute() {
-        Inventory.dropAll(440);
+        if(!isMining()) {
+            Inventory.dropAll(440);
+        }
         return 0;
+    }
+    private boolean isMining() {
+        return getLocalPlayer().isAnimating();
     }
 }
